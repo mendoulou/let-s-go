@@ -6,7 +6,8 @@ export enum View {
   COMMUNITY = 'COMMUNITY',
   PUBLISH = 'PUBLISH',
   SETTINGS = 'SETTINGS',
-  ROUTE_DETAIL = 'ROUTE_DETAIL'
+  ROUTE_DETAIL = 'ROUTE_DETAIL',
+  REPORTS = 'REPORTS'
 }
 
 export interface UserStats {

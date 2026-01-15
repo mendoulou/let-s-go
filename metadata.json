@@ -1,5 +1,20 @@
 {
-  "name": "RunnersHub - 跑步者社区与追踪应用",
-  "description": "一个功能丰富的跑步运动追踪与社区社交应用，包含实时运动监测、路线发现、社区动态分享以及个性化设置。",
-  "requestFramePermissions": []
+  "name": "RunnersHub",
+  "short_name": "RunnersHub",
+  "description": "专业跑步追踪与社区应用",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbfaf9",
+  "theme_color": "#f45925",
+  "icons": [
+    {
+      "src": "https://lh3.googleusercontent.com/aida-public/AB6AXuBIJ5xcZGGfZQJS7xGbIoysGOqfsHRi7KtJaaNK72v0x-trftYwV7VtvlDP2jd8k9LOdrN9x65sSQx6qBenwq7_0u-MyjAYMUcQm8vmZ19A9h-dN08CTUhyb0aTKyLNHcIA0BUMBHj_mHjeDIQ7WQNE4u8wnwTJKQoRD47pxV9cqqbXFW3ME0hoRwJYaYIM1CTmXudko7a9RQqlOPokD_paiSAsGvOLrVzo9nIvTsN-MDHDFwmB_m4t72YK5A1pzJzB8KudD2EIgWA",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "requestFramePermissions": [
+    "geolocation",
+    "camera"
+  ]
 }
