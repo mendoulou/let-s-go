@@ -16,13 +16,32 @@ interface Challenge {
   deadline: string;
 }
 
+interface Notification {
+  id: string;
+  title: string;
+  content: string;
+  time: string;
+  type: 'SYSTEM' | 'COMMUNITY' | 'CHALLENGE';
+  isRead: boolean;
+}
+
 const HomeView: React.FC<HomeViewProps> = ({ onQuickStart, onOpenReports, weeklyGoal }) => {
   const [greeting, setGreeting] = useState('你好');
   const [progressValue, setProgressValue] = useState(0);
   const [isCreatingChallenge, setIsCreatingChallenge] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  
   const [challenges, setChallenges] = useState<Challenge[]>([
     { id: 'default-1', type: 'DISTANCE', targetValue: 50, currentValue: 24.8, title: '月度半马突破', deadline: '剩余 12 天' }
   ]);
+
+  const [notifications, setNotifications] = useState<Notification[]>([
+    { id: '1', title: '挑战达成！', content: '恭喜你完成了“周末5公里”挑战，获得了新勋章！', time: '10分钟前', type: 'CHALLENGE', isRead: false },
+    { id: '2', title: '收到点赞', content: 'Sarah Jenkins 点赞了你的动态“今天空气真好”。', time: '1小时前', type: 'COMMUNITY', isRead: false },
+    { id: '3', title: '系统更新', content: 'RunnersHub v2.5 版本已发布，快去看看新功能吧。', time: '昨天', type: 'SYSTEM', isRead: true }
+  ]);
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
   // 表单状态
   const [newChallenge, setNewChallenge] = useState({
@@ -64,8 +83,12 @@ const HomeView: React.FC<HomeViewProps> = ({ onQuickStart, onOpenReports, weekly
     setNewChallenge({ title: '', type: 'DISTANCE', target: 5 });
   };
 
+  const markAllAsRead = () => {
+    setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+  };
+
   return (
-    <div className="flex flex-col space-y-6 pb-24 animate-in fade-in duration-500 overflow-y-auto max-h-screen no-scrollbar">
+    <div className="flex flex-col space-y-6 pb-24 animate-in fade-in duration-500 overflow-y-auto max-h-screen no-scrollbar relative">
       {/* Header */}
       <header className="flex items-center p-4 justify-between">
         <div className="flex items-center gap-3">
@@ -75,9 +98,14 @@ const HomeView: React.FC<HomeViewProps> = ({ onQuickStart, onOpenReports, weekly
             <h2 className="text-xl font-black tracking-tight">{greeting}, Alex!</h2>
           </div>
         </div>
-        <button className="relative size-10 flex items-center justify-center rounded-full bg-white dark:bg-[#25282c] shadow-sm border border-[#f4eae7] dark:border-none active:scale-90 transition-all">
+        <button 
+          onClick={() => setIsNotificationsOpen(true)}
+          className="relative size-10 flex items-center justify-center rounded-full bg-white dark:bg-[#25282c] shadow-sm border border-[#f4eae7] dark:border-none active:scale-90 transition-all"
+        >
           <span className="material-symbols-outlined text-gray-600 dark:text-gray-300">notifications</span>
-          <span className="absolute top-2.5 right-2.5 size-2 rounded-full bg-primary ring-2 ring-white dark:ring-[#25282c]"></span>
+          {unreadCount > 0 && (
+            <span className="absolute top-2.5 right-2.5 size-2.5 rounded-full bg-primary ring-2 ring-white dark:ring-[#25282c] animate-pulse"></span>
+          )}
         </button>
       </header>
 
@@ -187,6 +215,67 @@ const HomeView: React.FC<HomeViewProps> = ({ onQuickStart, onOpenReports, weekly
           </div>
         </div>
       </section>
+
+      {/* Notifications Drawer */}
+      {isNotificationsOpen && (
+        <div className="fixed inset-0 z-[120] flex animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsNotificationsOpen(false)}></div>
+          <div className="relative ml-auto w-full max-w-[320px] bg-android-bg-light dark:bg-[#1e1e1e] h-full shadow-2xl animate-in slide-in-from-right duration-500 flex flex-col">
+            <header className="p-6 border-b border-black/5 flex items-center justify-between">
+              <div>
+                <h4 className="text-2xl font-black">消息通知</h4>
+                <p className="text-[10px] font-black text-gray-400 uppercase mt-1">{unreadCount} 条未读消息</p>
+              </div>
+              <button onClick={() => setIsNotificationsOpen(false)} className="size-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </header>
+            
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {notifications.length > 0 ? (
+                notifications.map((n) => (
+                  <div key={n.id} className={`p-4 rounded-2xl border transition-all ${n.isRead ? 'bg-transparent border-black/5 opacity-60' : 'bg-white dark:bg-white/5 border-primary/20 shadow-sm'}`}>
+                    <div className="flex items-start gap-3">
+                      <div className={`size-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                        n.type === 'CHALLENGE' ? 'bg-amber-100 text-amber-600' :
+                        n.type === 'COMMUNITY' ? 'bg-rose-100 text-rose-600' :
+                        'bg-blue-100 text-blue-600'
+                      }`}>
+                        <span className="material-symbols-outlined text-lg">
+                          {n.type === 'CHALLENGE' ? 'emoji_events' : n.type === 'COMMUNITY' ? 'favorite' : 'info'}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-center mb-1">
+                          <p className="font-bold text-sm">{n.title}</p>
+                          <span className="text-[10px] text-gray-400">{n.time}</span>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">{n.content}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
+                  <span className="material-symbols-outlined text-6xl mb-4">mail_lock</span>
+                  <p className="font-black uppercase text-xs">暂无消息</p>
+                </div>
+              )}
+            </div>
+
+            {unreadCount > 0 && (
+              <div className="p-6 border-t border-black/5">
+                <button 
+                  onClick={markAllAsRead}
+                  className="w-full bg-primary/10 text-primary py-3 rounded-xl font-black text-sm active:scale-95 transition-all"
+                >
+                  全部标记为已读
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Challenge Creation Dialog */}
       {isCreatingChallenge && (
